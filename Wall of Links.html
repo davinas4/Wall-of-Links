@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>WALL OF LINKS</title>
+  <style>
+    :root {
+      --ford-dark:   #00095B;
+      --ford-blue:   #003478;
+      --ford-mid:    #0066CC;
+      --accent:      #facc15;
+      --bg:          #000000;
+      --bg-card:     #0d0d0d;
+      --bg-sidebar:  #0d0d0d;
+      --border:      rgba(255,255,255,0.07);
+      --txt:         #f5f0eb;
+      --txt-muted:   #c9bfb5;
+      --chip-bg:     rgba(255,255,255,0.06);
+      --chip-hover:  rgba(255,255,255,0.10);
+    }
+
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Calibri', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--txt);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 700px 500px at 10% 0%,   rgba(0,52,120,0.35) 0%, transparent 70%),
+        radial-gradient(ellipse 500px 400px at 90% 100%, rgba(0,102,204,0.2)  0%, transparent 70%),
+        radial-gradient(ellipse 300px 300px at 50%  50%, rgba(56,189,248,0.04) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px);
+      background-size: 28px 28px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ─── Header ─────────────────────────────────────────── */
+    header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 200;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1.5rem;
+      background: linear-gradient(135deg,
+        rgba(0,9,91,0.95)   0%,
+        rgba(0,52,120,0.95) 60%,
+        rgba(0,102,204,0.9) 100%);
+      border-bottom: 1px solid rgba(56,189,248,0.15);
+      backdrop-filter: blur(20px);
+      box-shadow: 0 4px 40px rgba(0,50,180,0.35);
+    }
+
+    .h-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+      flex-shrink: 0;
+    }
+
+    .h-logo {
+      font-size: 1.75rem;
+      font-weight: 900;
+      font-style: italic;
+      color: #fff;
+      letter-spacing: -0.5px;
+      text-shadow: 0 0 24px rgba(255,255,255,0.25);
+    }
+
+    .h-divider {
+      width: 1px;
+      height: 28px;
+      background: rgba(255,255,255,0.18);
+    }
+
+    .h-title {
+      font-size: 0.8rem;
+      font-weight: 400;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.65);
+    }
+
+    /* ── Home Button (appears when filtered) ── */
+    #homeBtn {
+      display: none;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 1rem;
+      border-radius: 50px;
+      background: rgba(250,204,21,0.15);
+      border: 1px solid rgba(250,204,21,0.4);
+      color: #facc15;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+      text-transform: uppercase;
+    }
+    #homeBtn:hover {
+      background: rgba(250,204,21,0.28);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(250,204,21,0.2);
+    }
+    #homeBtn.visible {
+      display: flex;
+    }
+
+    /* ── Breadcrumb bar (shows active category name) ── */
+    #breadcrumb {
+      display: none;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.45rem 1.2rem;
+      background: rgba(250,204,21,0.07);
+      border-bottom: 1px solid rgba(250,204,21,0.15);
+      font-size: 0.78rem;
+      color: var(--txt-muted);
+      position: sticky;
+      top: 64px;
+      z-index: 100;
+    }
+    #breadcrumb.visible { display: flex; }
+    #breadcrumb .bc-arrow { color: var(--txt-muted); }
+    #breadcrumb .bc-cat {
+      color: var(--accent);
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .env-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.3rem 0.85rem;
+      border-radius: 50px;
+      background: rgba(34,197,94,0.12);
+      border: 1px solid rgba(34,197,94,0.25);
+      font-size: 0.75rem;
+      color: #4ade80;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .env-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #22c55e;
+      animation: pulse 2s ease-in-out infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes pulse {
+      0%,100% { opacity:1; box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
+      50%      { opacity:0.7; box-shadow: 0 0 0 5px rgba(34,197,94,0); }
+    }
+
+    .h-search {
+      position: relative;
+      width: min(280px, 35vw);
+    }
+
+    .h-search svg {
+      position: absolute;
+      left: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    #searchInput {
+      width: 100%;
+      padding: 0.5rem 1rem 0.5rem 2.3rem;
+      border-radius: 50px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+      font-size: 0.875rem;
+      outline: none;
+      transition: background 0.25s, border-color 0.25s, box-shadow 0.25s;
+      backdrop-filter: blur(10px);
+    }
+    #searchInput::placeholder { color: rgba(255,255,255,0.4); }
+    #searchInput:focus {
+      background: rgba(255,255,255,0.14);
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(250,204,21,0.15);
+    }
+
+    /* ─── Layout ─────────────────────────────────────────── */
+    .layout {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      margin-top: 64px;
+      min-height: calc(100vh - 64px);
+    }
+
+    /* ─── Main ───────────────────────────────────────────── */
+    .main {
+      flex: 1;
+      padding: 1.75rem 1.5rem;
+      overflow-y: auto;
+      min-width: 0;
+    }
+
+    .cat-section {
+      margin-bottom: 1.25rem;
+      scroll-margin-top: 80px;
+      animation: fadeUp 0.35s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity:0; transform: translateY(12px); }
+      to   { opacity:1; transform: translateY(0); }
+    }
+
+    .cat-card {
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      overflow: hidden;
+      transition: box-shadow 0.25s, border-color 0.25s;
+    }
+
+    .cat-card:hover {
+      border-color: rgba(250,204,21,0.18);
+      box-shadow: 0 6px 40px rgba(0,80,200,0.12);
+    }
+
+    .cat-header {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      padding: 0.75rem 1.25rem;
+      background: linear-gradient(90deg,
+        rgba(0,52,120,0.4) 0%,
+        rgba(0,52,120,0.05) 100%);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .cat-icon { font-size: 1rem; }
+
+    .cat-name {
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .cat-count {
+      margin-left: auto;
+      background: rgba(250,204,21,0.1);
+      color: var(--accent);
+      border-radius: 50px;
+      padding: 0.15rem 0.6rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+
+    .links-wrap {
+      padding: 0.85rem 1.25rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+    }
+
+    .link-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.38rem 0.85rem;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.07);
+      background: var(--chip-bg);
+      color: #ede8e3;
+      font-size: 0.825rem;
+      text-decoration: none;
+      text-decoration-color: rgba(248,113,113,0.4);
+      text-underline-offset: 3px;
+      text-decoration-thickness: 1px;
+      white-space: nowrap;
+      transition: background 0.2s, border-color 0.2s, color 0.2s,
+                  transform 0.2s, box-shadow 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .link-chip::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.06) 50%, transparent 100%);
+      transform: translateX(-100%);
+      transition: transform 0.4s ease;
+    }
+
+    .link-chip:hover::before { transform: translateX(100%); }
+
+    .link-chip:hover {
+      background: var(--chip-hover);
+      border-color: rgba(250,204,21,0.35);
+      color: #fca5a5;
+      text-decoration-color: #f87171;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(56,189,248,0.1);
+    }
+
+    .chip-arrow {
+      font-size: 0.7rem;
+      opacity: 0;
+      transform: translateX(-4px);
+      transition: opacity 0.2s, transform 0.2s;
+    }
+
+    .link-chip:hover .chip-arrow {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    #noResults {
+      display: none;
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--txt-muted);
+    }
+    #noResults .nr-icon { font-size: 3.5rem; margin-bottom: 1rem; }
+    #noResults h3 { font-size: 1.1rem; color: var(--txt); margin-bottom: 0.4rem; }
+
+    /* ─── Sidebar ─────────────────────────────────────────── */
+    .sidebar {
+      width: 245px;
+      flex-shrink: 0;
+      position: sticky;
+      top: 64px;
+      height: calc(100vh - 64px);
+      overflow-y: auto;
+      background: var(--bg-sidebar);
+      border-left: 1px solid var(--border);
+      padding: 0 0 2rem;
+    }
+
+    .sb-top {
+      position: sticky;
+      top: 0;
+      background: var(--bg-sidebar);
+      z-index: 10;
+      padding: 1rem 1.2rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sb-section-title {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--txt-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .sb-stats {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .sb-stat { display: flex; flex-direction: column; gap: 2px; }
+    .sb-stat-num   { font-size: 1.1rem; font-weight: 800; color: var(--accent); line-height: 1; }
+    .sb-stat-label { font-size: 0.6rem; color: var(--txt-muted); text-transform: uppercase; letter-spacing: 1px; }
+
+    /* ── Sidebar Home button (inside sidebar) ── */
+    .sb-home {
+      display: none;
+      align-items: center;
+      gap: 0.5rem;
+      width: calc(100% - 2.4rem);
+      margin: 0.75rem 1.2rem 0;
+      padding: 0.45rem 0.85rem;
+      border-radius: 8px;
+      background: rgba(250,204,21,0.1);
+      border: 1px solid rgba(250,204,21,0.3);
+      color: var(--accent);
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      transition: background 0.2s, box-shadow 0.2s;
+    }
+    .sb-home:hover {
+      background: rgba(250,204,21,0.22);
+      box-shadow: 0 2px 12px rgba(250,204,21,0.15);
+    }
+    .sb-home.visible { display: flex; }
+
+    /* Sidebar nav items */
+    .sb-item {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      padding: 0.55rem 1.2rem;
+      font-size: 0.82rem;
+      color: var(--txt-muted);
+      text-decoration: none;
+      cursor: pointer;
+      transition: background 0.18s, color 0.18s, border-color 0.18s;
+      border-left: 2px solid transparent;
+      user-select: none;
+    }
+
+    .sb-item:hover {
+      background: rgba(250,204,21,0.06);
+      color: var(--txt);
+      border-left-color: rgba(250,204,21,0.3);
+    }
+
+    .sb-item.active {
+      background: rgba(250,204,21,0.1);
+      color: var(--accent);
+      border-left-color: var(--accent);
+      font-weight: 600;
+    }
+
+    .sb-item-count {
+      margin-left: auto;
+      font-size: 0.68rem;
+      color: var(--txt-muted);
+      background: rgba(255,255,255,0.04);
+      border-radius: 50px;
+      padding: 0.1rem 0.45rem;
+    }
+
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.16); }
+
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .env-badge { display: none; }
+      .h-search { width: 160px; }
+      .h-title { display: none; }
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- ═══════════════════ HEADER ═══════════════════ -->
+<header>
+  <div class="h-brand">
+    <span class="h-logo">WALL OF LINKS</span>
+    <span class="h-divider"></span>
+    <span class="h-title">For Internal Use Only</span>
+  </div>
+
+  <!-- 🏠 Home button — only visible when filtered -->
+  <button id="homeBtn" onclick="goHome()" title="Back to all categories">
+    🏠 All Categories
+  </button>
+
+  <div class="env-badge">
+    <span class="env-dot"></span>
+  </div>
+
+  <div class="h-search">
+    <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="#fff">
+      <circle cx="8.5" cy="8.5" r="6"/>
+      <path d="M13.5 13.5L18 18" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    <input type="text" id="searchInput"
+           placeholder="Search links…"
+           autocomplete="off"
+           oninput="onSearch()"/>
+  </div>
+</header>
+
+<!-- ── Breadcrumb bar ── -->
+<div id="breadcrumb">
+  <span>All Categories</span>
+  <span class="bc-arrow">›</span>
+  <span class="bc-cat" id="bcCatName"></span>
+</div>
+
+<!-- ═══════════════════ LAYOUT ════════════════════ -->
+<div class="layout">
+
+  <!-- LEFT: Main Content -->
+  <main class="main" id="mainEl">
+    <div id="container"></div>
+    <div id="noResults">
+      <div class="nr-icon">🔍</div>
+      <h3>No results found</h3>
+      <p>Try a different search term</p>
+    </div>
+  </main>
+
+  <!-- RIGHT: Sidebar -->
+  <aside class="sidebar" id="sidebarEl">
+    <div class="sb-top">
+      <div class="sb-section-title">Categories</div>
+      <div class="sb-stats">
+        <div class="sb-stat">
+          <span class="sb-stat-num" id="totalLinks">—</span>
+          <span class="sb-stat-label">Links</span>
+        </div>
+        <div class="sb-stat">
+          <span class="sb-stat-num" id="totalCats">—</span>
+          <span class="sb-stat-label">Categories</span>
+        </div>
+      </div>
+      <!-- 🏠 Home button inside sidebar -->
+      <button class="sb-home" id="sbHomeBtn" onclick="goHome()">
+        🏠 All Categories
+      </button>
+    </div>
+    <nav id="sidebarNav"></nav>
+  </aside>
+
+</div>
+
+<!-- ═══════════════════ DATA + LOGIC ════════════════════ -->
+<script>
+
+const DATA = [
+  {
+    id: "DATA", icon: "🛠️", name: "VEHICLE DATA",
+    links: [
+      { name: "FDSPCL",        url: "https://www.fdspcl.dealerconnection.com/#/home" },
+      { name: "FDSLCL2",       url: "https://www.fdspcl2.dealerconnection.com/#/home" },
+      { name: "GVMS",          url: "https://www.gvmsinfo.ford.com" },
+      { name: "GVMS-R",        url: "https://gvmsr-ui-tool-862375256398.us-central1.run.app/" },
+      { name: "GiVIS",         url: "https://givis-caas-gcp-179294745386.us-central1.run.app/home" },
+      { name: "PTS (PROD)",    url: "https://www.fordtechservice.dealerconnection.com" },
+      { name: "PTS (QA)",      url: "https://wwwqa.fordtechservice.dealerconnection.com" },
+      { name: "IVS NG",        url: "https://www.ivsngawc.ford.com/#/showHome" },
+      { name: "ORCHESTRATOR",  url: "https://cvsq-orchestrator-ui-app-889918314308.us-central1.run.app/home" },
+      { name: "GSAR",          url: "https://www.gsar.ford.com/home" },
+      { name: "SCIINET",       url: "https://sciinet-app-prod-103152533191.us-central1.run.app/" },
+    ]
+  },
+  {
+    id: "RDM", icon: "📊", name: "GRAFANA",
+    links: [
+      { name: "FSA OVERVIEW DASHBOARD",   url: "https://observability.sre.ford.com/d/TyiQtNKHk/fsa-overview?orgId=247" },
+      { name: "FSA SVC EVENTS",           url: "https://observability.sre.ford.com/d/h4ei4OIHk/fsa-svc-events?orgId=247" },
+      { name: "AUTHOR/ERROR LOG REPORTS", url: "https://observability.sre.ford.com/dashboards/f/GtgCyl5Iz/author-error-log-reports" },
+    ]
+  },
+  {
+    id: "RECALL", icon: "💻", name: "FSA",
+    links: [
+      { name: "GRID",             url: "https://www.thegrid.ford.com" },
+      { name: "GCAMP",            url: "https://web.gcamp.ford.com/home" },
+      { name: "SPLUNK DASHBOARD", url: "https://fordmotor.splunkcloud.com/en-US/app/gvms/field_service_action_status" },
+      { name: "AUDIT DASHBOARD",  url: "https://datastudio.google.com/reporting/4ce0821f-81ca-4deb-89b0-737d5140f37d/page/p_i5e3rbu9od" },
+	  { name: "FSA SHAREPOINT",  url: "https://azureford.sharepoint.com/sites/DiagnosticServiceProducts/mcp/Shared%20Documents/Forms/AllItems.aspx?FolderCTID=0x012000224D86D98D640D41B968D8DE22DA51FD&id=%2Fsites%2FDiagnosticServiceProducts%2Fmcp%2FShared%20Documents%2FFSAs" }
+    ]
+  },
+  {
+    id: "ESCAPE", icon: "📋", name: "ESCAPE MONITORING",
+    links: [
+      { name: "POTENTIAL ACTIVE ESCAPES", url: "https://app.powerbi.com/groups/me/reports/866f944f-7442-4049-9aee-22d448ae3e4b/514e4292de69c6c546cf?experience=power-bi" },
+      { name: "PAM DASHBOARD",            url: "https://datastudio.google.com/reporting/57177964-e8bb-497a-8de8-cfc0aab42b1e/page/tEnnC" },
+    ]
+  },
+  {
+    id: "TRACKING", icon: "🌐", name: "JIRA TRACKING",
+    links: [
+      { name: "MPQ FSA TRACKER",   url: "https://ford.atlassian.net/jira/dashboards/51449" },
+      { name: "SW FSA BURNDOWN",   url: "https://ford.atlassian.net/jira/dashboards/46854" },
+      { name: "SW FSA PROJECT",    url: "https://ford.atlassian.net/jira/plans/10755/scenarios/10771/timeline?vid=125570" },
+      { name: "SW FSA PROGRESS",   url: "https://ford.atlassian.net/jira/dashboards/44222" },
+      { name: "SW FSA REPORT OUT", url: "https://ford.atlassian.net/jira/dashboards/47948" },
+      { name: "SVT DASHBOARD",     url: "https://ford.atlassian.net/jira/dashboards/32358" },
+    ]
+  },
+  {
+    id: "MCP", icon: "📜", name: "AUTHORING",
+    links: [
+      { name: "ODYSSEY",        url: "https://www.odyssey.ford.com/odyssey/Login" },
+      { name: "TOP APP",        url: "https://gdp-prod.crm.dynamics.com/main.aspx?appid=6e9e72cc-6d74-ef11-a670-000d3a3b2f72&pagetype=entitylist&etn=gpa_dspmcpmoddels&viewid=803838fd-9601-ef11-a1fd-00224805a2ff&viewType=1039" },
+      { name: "MCP SHAREPOINT", url: "https://azureford.sharepoint.com/sites/DiagnosticServiceProducts/mcp/SitePages/Home.aspx" },
+    ]
+  },
+];
+
+/* ─── STATE ─────────────────────────────────────────────── */
+// null = show all,  string = show only that category id
+let activeFilter = null;
+
+/* ─── RENDER ─────────────────────────────────────────────── */
+function buildChip({ name, url }) {
+  return `<a href="${url}" class="link-chip" target="_blank" rel="noopener noreferrer">
+            ${name}<span class="chip-arrow">↗</span>
+          </a>`;
+}
+
+function buildCard(cat, delay) {
+  return `
+  <div class="cat-section" id="cat-${cat.id}" style="animation-delay:${delay}ms">
+    <div class="cat-card">
+      <div class="cat-header">
+        <span class="cat-icon">${cat.icon}</span>
+        <span class="cat-name">${cat.name}</span>
+        <span class="cat-count">${cat.links.length}</span>
+      </div>
+      <div class="links-wrap">
+        ${cat.links.map(buildChip).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderCategories(list) {
+  document.getElementById('container').innerHTML =
+    list.map((cat, i) => buildCard(cat, i * 35)).join('');
+}
+
+function renderSidebar(list) {
+  document.getElementById('sidebarNav').innerHTML =
+    list.map(cat => `
+      <a class="sb-item ${activeFilter === cat.id ? 'active' : ''}"
+         data-id="${cat.id}"
+         onclick="filterCategory('${cat.id}')">
+        <span>${cat.icon}</span>
+        <span>${cat.name}</span>
+        <span class="sb-item-count">${cat.links.length}</span>
+      </a>`).join('');
+}
+
+function updateStats(list) {
+  document.getElementById('totalLinks').textContent =
+    list.reduce((s, c) => s + c.links.length, 0);
+  document.getElementById('totalCats').textContent = list.length;
+}
+
+function render(list) {
+  const noRes = document.getElementById('noResults');
+  const cont  = document.getElementById('container');
+  if (list.length === 0) {
+    cont.innerHTML = '';
+    noRes.style.display = 'block';
+  } else {
+    noRes.style.display = 'none';
+    renderCategories(list);
+  }
+  renderSidebar(DATA); // sidebar always shows ALL categories
+  updateStats(list);
+}
+
+/* ─── FILTER BY CATEGORY (sidebar click) ─────────────────── */
+function filterCategory(catId) {
+  // Clear search box
+  document.getElementById('searchInput').value = '';
+
+  // Find the clicked category
+  const cat = DATA.find(c => c.id === catId);
+  if (!cat) return;
+
+  activeFilter = catId;
+
+  // Show only this category
+  render([cat]);
+
+  // Show home buttons + breadcrumb
+  document.getElementById('homeBtn').classList.add('visible');
+  document.getElementById('sbHomeBtn').classList.add('visible');
+  document.getElementById('breadcrumb').classList.add('visible');
+  document.getElementById('bcCatName').textContent = cat.name;
+
+  // Scroll main content to top
+  document.getElementById('mainEl').scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ─── GO HOME ─────────────────────────────────────────────── */
+function goHome() {
+  activeFilter = null;
+
+  // Show all categories
+  render(DATA);
+
+  // Hide home buttons + breadcrumb
+  document.getElementById('homeBtn').classList.remove('visible');
+  document.getElementById('sbHomeBtn').classList.remove('visible');
+  document.getElementById('breadcrumb').classList.remove('visible');
+  document.getElementById('bcCatName').textContent = '';
+
+  // Scroll to top
+  document.getElementById('mainEl').scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ─── SEARCH ──────────────────────────────────────────────── */
+function onSearch() {
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+
+  // If searching, exit filter mode
+  if (q) {
+    activeFilter = null;
+    document.getElementById('homeBtn').classList.remove('visible');
+    document.getElementById('sbHomeBtn').classList.remove('visible');
+    document.getElementById('breadcrumb').classList.remove('visible');
+  }
+
+  if (!q) { render(DATA); return; }
+
+  const filtered = DATA.reduce((acc, cat) => {
+    const catMatch = cat.name.toLowerCase().includes(q);
+    const links = catMatch
+      ? cat.links
+      : cat.links.filter(l => l.name.toLowerCase().includes(q));
+    if (links.length) acc.push({ ...cat, links });
+    return acc;
+  }, []);
+
+  render(filtered);
+}
+
+/* ─── KEYBOARD: Escape = go home ─────────────────────────── */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && activeFilter) goHome();
+});
+
+/* ─── INIT ────────────────────────────────────────────────── */
+render(DATA);
+</script>
+</body>
+</html>
